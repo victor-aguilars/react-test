@@ -1,33 +1,75 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import { Button, Form, Container, Row } from 'react-bootstrap';
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { apiResponse: "" };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.state = {
+      apiResponse: "",
+      value: ""
+    };
   }
 
-  callAPI() {
-    fetch("http://localhost:9000/testAPI")
+  handleChange(event) {
+    this.setState({value: event.target.value});
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+
+    fetch("http://localhost:9000/testAPI/transformText", {
+      method: 'POST',
+      body: JSON.stringify({text: this.state.value}) ,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
     .then(res => res.text())
     .then(res => this.setState({ apiResponse: res }))
     .catch(err => err);
   }
 
+  callAPI() {
+    fetch("http://localhost:9000/testAPI")
+      .then(res => res.text())
+      .then(res => this.setState({ apiResponse: res }))
+      .catch(err => err);
+  }
+
   componentDidMount() {
-    this.callAPI();
+    // this.callAPI();
   }
 
   render() {
     return (
-      <div className="App">
-      <header className="App-header">
-      <img src={logo} className="App-logo" alt="logo" />
-      <h1 className="App-title">Welcome to React</h1>
-      </header>
-      <p className="App-intro">{this.state.apiResponse}</p>
-      </div>
+      <Container>
+        <Row>
+          <div className="col-sm-9 col-md-7 col-lg-5 mx-auto">
+            <div className="my-5">
+              <Form onSubmit={this.handleSubmit}>
+                <Form.Group>
+                  <Form.Label className="title">Text to transform</Form.Label>
+                  <Form.Control
+                    placeholder="Enter text"
+                    value={this.state.value}
+                    onChange={this.handleChange}
+                  />
+                </Form.Group>
+                <Button variant="primary" type="submit">
+                  MAYUS
+                </Button>
+                <br /><br />
+                <p>{this.state.apiResponse}</p>
+              </Form>
+            </div>
+          </div>
+        </Row>
+      </Container>
     );
   }
 }
